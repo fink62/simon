@@ -2,23 +2,68 @@ const buttonColors = ["red", "blue", "green", "yellow"];
 var gamePattern = [];
 var userPattern = [];
 var level = 0;
-var gameOn = 0;
+var gameOn = false;
+
+
+$(document).keypress(function(){
+    if (!gameOn) {
+        nextSequence();
+        gameOn = true;
+        console.log("gameOn: " + gameOn)
+    };
+})
+
+$(".btn").click(function(){
+    var userChosenColor = $(this).attr("id");
+
+    userPattern.push(userChosenColor);
+
+    animatePress(userChosenColor);
+    playSound(userChosenColor);
+    
+    console.log("userPattern: " + userPattern);
+
+    checkAnswer(userPattern.length-1);
+})
+
+function checkAnswer(currentLevel){
+    var success = false;
+    if(userPattern[currentLevel] === gamePattern[currentLevel]){
+        success = true;
+
+        if(userPattern.length === gamePattern.length){
+            setTimeout(function () {
+                nextSequence();
+            }, 1000);
+        }
+    }
+    else {
+        playSound("wrong");
+        gameOver();
+        success = false;
+        startOver();
+    }
+    console.log("success: " + success);
+}
 
 function nextSequence() {
     var randomNumber = Math.floor(Math.random()*4);
     var randomChosenColor = buttonColors[randomNumber];
-    gameOn = 1;
+    
+    gameOn = true;
     level++;
+    userPattern = [];
+
+    $("#level-title").text("Level " + level);
+    
     gamePattern.push(randomChosenColor);
+    
     var buttonID = "#" + randomChosenColor;
     $(buttonID).fadeIn(100).fadeOut(100).fadeIn(100);
+    
     playSound(randomChosenColor);
-}
-
-function playGamePattern(gamePattern) {
-    for (let i = 0; i < gamePattern.length; i++){
- 
-    }
+    
+    console.log("gamePattern: " + gamePattern);
 }
 
 function playSound(name){
@@ -34,16 +79,17 @@ function animatePress(currentColor){
     },100);
 }
 
-$(".btn").click(function(){
-    var userChosenColor = $(this).attr("id");
-    userPattern.push(userChosenColor);
-    animatePress(userChosenColor);
-    playSound(userChosenColor);
-})
+function gameOver(){
+    $("body").addClass("game-over");
+    setTimeout(function(){
+        $("body").removeClass("game-over");
+    },200);
+    $("#level-title").text("Game Over! Press any key to restart");
+}
 
-$(document).keypress(function(){
-    if (gameOn === 0) {
-        nextSequence()
-    };
-})
-
+function startOver(){
+    gamePattern = [];
+    userPattern = [];
+    level = 0;
+    gameOn = false;
+}
