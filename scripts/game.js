@@ -1,20 +1,23 @@
 const buttonColors = ["red", "blue", "green", "yellow"];
 var gamePattern = [];
 var userPattern = [];
+var level = 0;
+var gameOn = 0;
 
-function nextColor() {
+function nextSequence() {
     var randomNumber = Math.floor(Math.random()*4);
     var randomChosenColor = buttonColors[randomNumber];
-    return randomChosenColor;
+    gameOn = 1;
+    level++;
+    gamePattern.push(randomChosenColor);
+    var buttonID = "#" + randomChosenColor;
+    $(buttonID).fadeIn(100).fadeOut(100).fadeIn(100);
+    playSound(randomChosenColor);
 }
 
 function playGamePattern(gamePattern) {
     for (let i = 0; i < gamePattern.length; i++){
-        
-        var buttonID = "#" + gamePattern[i];
-        $(buttonID).fadeOut(100);
-        $(buttonID).fadeIn(100);
-        playSound(gamePattern[i]);
+ 
     }
 }
 
@@ -31,18 +34,16 @@ function animatePress(currentColor){
     },100);
 }
 
-$(document).keydown(function(){
-    
-    gamePattern.push(nextColor());
+$(".btn").click(function(){
+    var userChosenColor = $(this).attr("id");
+    userPattern.push(userChosenColor);
+    animatePress(userChosenColor);
+    playSound(userChosenColor);
+})
 
-    playGamePattern(gamePattern);
-
-    $(".btn").click(function(){
-        var userChosenColor = $(this).attr("id");
-        userPattern.push(userChosenColor);
-        animatePress(userChosenColor);
-        playSound(userChosenColor);
-    })
-    
+$(document).keypress(function(){
+    if (gameOn === 0) {
+        nextSequence()
+    };
 })
 
